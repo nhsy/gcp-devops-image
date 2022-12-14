@@ -4,6 +4,7 @@ stages:
   - "clone"
   - "build"
   - "test"
+  - "scan"
   - "push"
 
 steps:
@@ -34,6 +35,16 @@ steps:
     commands:
       - ./scripts/unit-tests.sh
     stage: "test"
+  scan:
+    title: "Running scan"
+    type: "freestyle"
+    image: "${{build}}"
+    working_directory: "${{clone}}"
+    commands:
+      - |-
+        curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin
+        trivy fs / --exit-code 0 --no-progress
+    stage: "scan"
 
   push:
     type: push
